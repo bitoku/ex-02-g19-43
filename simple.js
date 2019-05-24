@@ -116,23 +116,50 @@ server.on('request', function(req, res) {
                 res.end('Bad Request');
             }
             break;
-        case 'DELETE':
-            if(path.match(/^\/id\/\d+$/)) {
-                const id = parseInt(path.match(/^\/id\/(\d+)$/)[1]);
-                const item = items.filter(n => n.id === id);
-                if (item.length === 0) {
-                    res.statusCode = 404;
-                    res.statusMessage = ('Not Found');
-                    res.end('Not Found');
-                } else {
-                    items = items.filter(n => n.id !== id);
-                    var body = JSON.stringify(item[0], null, '\t');
-                    res.setHeader('Content-Length', Buffer.byteLength(body));
-                    res.setHeader('Content-Type', 'application/json; charset=utf8');
-                    res.statusCode = 200;
-                    res.statusMessage = 'OK';
-                    res.end(body);
-                }
+        case 'PUT' :
+            if(path.match(/^\/id\/\d+/)) {
+                var id = parseInt(path.match(/^\/id\/(\d+)/)[1]);
+                var input_item;
+                var data = '';
+                req.on('data', function (chunk) {
+                    data += chunk;
+                });
+                req.on('end', function () {
+                    try {
+                        input_item = JSON.parse(data, function (key, value) {
+                            if (key === '') return value;
+                            if (key === 'data') return value;
+                        });
+                    } catch (e) {
+                        res.statusCode = 400;
+                        res.statusMessage = e.message;
+                        res.end('Bad Request');
+                    }
+
+                    let found = false;
+                    for(const item of items){
+                        if (item.id === id){
+                            item.data = input_item.data;
+                            found = true;
+                            var body = JSON.stringify(item, null, '\t');
+                            res.setHeader('Content-Length', Buffer.byteLength(body));
+                            res.setHeader('Content-Type', 'application/json; charset=utf8');
+                            res.statusCode = 200;
+                            res.statusMessage = 'OK';
+                            res.end(body);
+                            break;
+                        }
+                    }
+                    if(!found){
+                        res.statusCode = 404;
+                        res.statusMessage = ('Not Found');
+                        res.end('Not Found');
+                    }
+                });
+            } else {
+                res.statusCode = 400;
+                res.statusMessage = ('Bad Request');
+                res.end('Bad Request')
             }
             break;
         default:
