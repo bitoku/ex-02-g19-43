@@ -7,7 +7,7 @@
  * w1$ node simple.js
  * Server running at http://127.0.0.1:3000/
  *
- * 
+ *
  * 2) To test, on other window:
  * w2$ curl -i -X GET http://127.0.0.1:3000/
  * HTTP/1.1 200 OK
@@ -15,7 +15,7 @@
  * Content-Length: 159
  * Content-Type: application/json; charset=utf8
  * Date: Tue, 18 Apr 2017 07:06:01 GMT
- * 
+ *
  * [
  * 	{
  * 		"id": 0,
@@ -70,7 +70,18 @@ server.on('request', function(req, res) {
                 res.statusCode = 200;
                 res.statusMessage = 'OK';
                 res.end(body);
-            } else {
+            }
+            if(path.match(/^\/id\/[0-9]+$/)){
+            // $ curl -i -X GET http://127.0.0.1:3000/id/:number
+                id = parseInt(path.match(/^\/id\/([0-9])+$/)[1])
+                item = items.filter(x => x.id == id)
+                var body = JSON.stringify(item, null, '\t');
+                res.setHeader('Content-Length', Buffer.byteLength(body));
+                res.setHeader('Content-Type', 'application/json; charset=utf8');
+                res.statusCode = 200;
+                res.statusMessage = 'OK';
+                res.end(body);
+            }else {
                 res.statusCode = 400;
                 res.statusMessage = 'Bad Request';
                 res.end('Bad Request');
