@@ -173,6 +173,25 @@ server.on('request', function(req, res) {
                 res.end('Bad Request')
             }
             break;
+        case 'DELETE':
+            if(path.match(/^\/id\/\d+$/)) {
+                const id = parseInt(path.match(/^\/id\/(\d+)$/)[1]);
+                const item = items.filter(n => n.id === id);
+                if (item.length === 0) {
+                    res.statusCode = 404;
+                    res.statusMessage = ('Not Found');
+                    res.end('Not Found');
+                } else {
+                    items = items.filter(n => n.id !== id);
+                    var body = JSON.stringify(item[0], null, '\t');
+                    res.setHeader('Content-Length', Buffer.byteLength(body));
+                    res.setHeader('Content-Type', 'application/json; charset=utf8');
+                    res.statusCode = 200;
+                    res.statusMessage = 'OK';
+                    res.end(body);
+                }
+            }
+            break;
         default:
             res.statusCode = 400;
             res.statusMessage = ('Bad Request');
