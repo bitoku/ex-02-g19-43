@@ -70,17 +70,26 @@ server.on('request', function(req, res) {
                 res.statusCode = 200;
                 res.statusMessage = 'OK';
                 res.end(body);
-            }
-            if(path.match(/^\/id\/[0-9]+$/)){
+            } else if(path.match(/^\/id\/[0-9]+$/)){
             // $ curl -i -X GET http://127.0.0.1:3000/id/:number
-                id = parseInt(path.match(/^\/id\/([0-9])+$/)[1])
-                item = items.filter(x => x.id == id)
-                var body = JSON.stringify(item, null, '\t');
-                res.setHeader('Content-Length', Buffer.byteLength(body));
-                res.setHeader('Content-Type', 'application/json; charset=utf8');
-                res.statusCode = 200;
-                res.statusMessage = 'OK';
-                res.end(body);
+                let found = false;
+                id = parseInt(path.match(/^\/id\/([0-9]+)$/)[1]);
+                item = items.filter(x => x.id == id);
+                if(item.length > 0){
+                  found = true;
+                }
+                if(!found){
+                    res.statusCode = 200;
+                    res.statusMessage = ('Not Foound');
+                    res.end('Not Found');
+                } else {
+                    var body = JSON.stringify(item[0], null, '\t');
+                    res.setHeader('Content-Length', Buffer.byteLength(body));
+                    res.setHeader('Content-Type', 'application/json; charset=utf8');
+                    res.statusCode = 200;
+                    res.statusMessage = 'OK';
+                    res.end(body);
+                }
             }else {
                 res.statusCode = 400;
                 res.statusMessage = 'Bad Request';
