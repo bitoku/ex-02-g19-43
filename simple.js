@@ -79,8 +79,8 @@ server.on('request', function(req, res) {
                   found = true;
                 }
                 if(!found){
-                    res.statusCode = 200;
-                    res.statusMessage = ('Not Foound');
+                    res.statusCode = 404;
+                    res.statusMessage = ('Not Found');
                     res.end('Not Found');
                 } else {
                     var body = JSON.stringify(item[0], null, '\t');
@@ -199,6 +199,10 @@ server.on('request', function(req, res) {
                     res.statusMessage = 'OK';
                     res.end(body);
                 }
+            } else {
+                res.statusCode = 400;
+                res.statusMessage = ('Bad Request');
+                res.end('Bad Request')
             }
             break;
         default:
